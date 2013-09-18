@@ -1,0 +1,45 @@
+\subsection{Euler circuits and Hamiltonian path}
+    欧拉环和哈密尔顿路径
+
+    欧拉路径(一笔画问题)
+    连通的无向图 G 有欧拉路径的充要条件是：G中奇顶点（连接的边数量为奇数的顶点）的数目等于0或者2。
+    连通的无向图 G 是欧拉环（存在欧拉回路）的充要条件是：G中每个顶点的度都是偶数。[2]。
+    一个有向图是欧拉图当且仅当该图的基图（将所有有向边变为无向边后形成的无向图，这里同样不考虑度数为0的点）是连通的且所有点的入度等于出度
+    一个有向图是半欧拉图当且仅当该图的基图是连通的且有且只有一个点的入度比出度少1（作为欧拉路径的起点），有且只有一个点的入度比出度多1（作为终点），其余点的入度等于出度。
+
+    哈密尔顿图 
+    设G=(V,E)是一个无向简单图，|V|=n.  n≥3. 
+    若对于任意的两个顶点u，v∊V，d(u)+d(v) ≥n，
+    那么, G是哈密尔顿图
+    
+    以下为非递归求欧拉路径
+    \begin{lstlisting}[language=c++]
+int v = edge_num - 1;
+
+void dfs() {
+    int x = 0, y, tp = 1;
+    stk[0] = 0;
+    for(int i = 0; i < n; ++ i) {
+        now[i] = head[i];
+    }
+    bool flag;
+    while(tp) {
+        flag = false;
+        for(int p = now[x]; p != -1; p = edge[p].next)
+            if(!vis[p]) {
+                y = vis[p].v;
+                vis[edge[p]] = true;
+                vis[edge[p ^ 1]] = true; //有向图删除此句
+                now[x] = p;
+                stk[tp ++] = y;
+                x = y;
+                flag = true;
+                break;
+            }
+        if(!flag) {
+            res[v --] = x + 1;
+            x = stk[--tp - 1];
+        }
+    }
+}
+    \end{lstlisting}
