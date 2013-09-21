@@ -1,0 +1,60 @@
+\subsection{二分图匹配 HK算法}
+    \begin{lstlisting}[language=c++]
+int nx, ny;
+int dx[4000], dy[4000], cx[4000], cy[4000];
+vector<int> mp[4000];
+
+bool bfs() {
+    bool tag = false;
+    queue<int> q;
+    memset(dx, 0, sizeof(dx));
+    memset(dy, 0, sizeof(dy));
+    for(int i = 0; i < nx; i ++)
+        if(cx[i] == -1)
+            q.push(i);
+    while(!q.empty()) {
+        int u = q.front();
+        q.pop();
+        for(int i = 0; i < (int)mp[u].size(); i ++) {
+            int v = mp[u][i];
+            if(!dy[v]) {
+                dy[v] = dx[u] + 1;
+                if(cy[v] == -1)
+                    tag = true;
+                else {
+                    dx[cy[v]] = dy[v] + 1;
+                    q.push(cy[v]);
+                }
+            }
+        }
+    }
+    return tag;
+}
+
+bool dfs(int u) {
+    for(int i = 0; i < (int)mp[u].size(); i ++) {
+        int v = mp[u][i];
+        if(dy[v] == dx[u] + 1) {
+            dy[v] = 0;
+            if(cy[v] == -1 || dfs(cy[v])) {
+                cx[u] = v;
+                cy[v] = u;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+int hk() {
+    int match = 0;
+    memset(cx, -1, sizeof(cx));
+    memset(cy, -1, sizeof(cy));
+    while(bfs()) {
+        for(int i = 0; i < nx; i ++)
+            if(cx[i] == -1 && dfs(i))
+                match ++;
+    }
+    return match;
+}
+    \end{lstlisting}
