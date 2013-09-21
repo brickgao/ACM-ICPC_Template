@@ -1,0 +1,47 @@
+\subsection{最大团 最大独立集}
+最大团与最大独立集求解
+最大独立集为原图的补图求最大团
+以下为标准的最大团求解
+    \begin{lstlisting}[language=c++]
+int n, m;
+int mx;
+int map[110][110], stk[110][110];
+int tt[110], dp[110], ans[110];
+
+void dfs(int ns, int dep) {
+    if(ns == 0) {
+        if(dep > mx) {
+            mx = dep;
+            for(int i = 1; i <= dep; ++ i)
+                ans[i] = tt[i]; //ans begin from 1
+        }
+        return;
+    }
+    for(int i = 0; i < ns; ++ i) {
+        int k = stk[dep][i], cnt = 0;
+        if(dep + n - k <= mx)   return;
+        if(dep + dp[k] <= mx)   return;
+        for(int j = i + 1; j < ns; ++ j) {
+            int p = stk[dep][j];
+            if(map[k][p])
+                stk[dep + 1][cnt ++] = p;
+        }
+        tt[dep + 1] = k;
+        dfs(cnt, dep + 1);
+    }
+}
+
+int clique() {
+    mx = 0;
+    for(int i = n; i >= 1; -- i) {
+        int cnt = 0;
+        for(int j = i + 1; j <= n; ++ j)
+            if(map[i][j])
+                stk[1][cnt ++] = j;
+        tt[1] = i;
+        dfs(cnt, 1);
+        dp[i] = mx;
+    }
+    return mx;
+}
+    \end{lstlisting}
