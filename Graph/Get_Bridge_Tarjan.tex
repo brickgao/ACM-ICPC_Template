@@ -1,0 +1,53 @@
+\subsection{求割边/桥 Tarjan}
+求割边/桥(不含重边) Tarjan
+    \begin{lstlisting}[language=c++]
+    vector <int> adj[MAXN];
+bool invis[MAXN];
+int dfn[MAXN], low[MAXN];
+
+void Get_bridge(int pre, int u) {
+    invis[u] = true;
+    dfn[u] = low[u] = ++ cnt;
+    for(int i = 0; i < adj[u].size(); ++ i) {
+        int v = adj[u][i];
+        if(!dfn[v]) {
+            Get_bridge(u, v);
+            if(dfn[u] < low[v]) {
+                //u v即为割边
+            }
+            low[u] = min(low[u], low[v]);
+        }
+        else if(v != pre && invis[v])
+            low[u] = min(low[u], dfn[v]);
+    }
+    invis[u] = false;
+    return;
+}
+
+void init() {
+    cnt = 0;
+    memset(invis, false, sizeof(invis));
+    memset(dfn, 0, sizeof(dfn));
+    memset(low, 0, sizeof(low));
+}
+    \end{lstlisting}
+求割边/桥(含重边) Tarjan
+    \begin{lstlisting}[language=c++]
+void tarjan(int k,int father)
+{
+	dfn[k]=low[k]=++NOW;
+    for(int x=last[k];x;x=pre[x])
+    {
+        if(!dfn[son[x]])
+        {
+			tag[son[x]]=id[x];
+            tarjan(son[x],k);
+            low[k]=min(low[k],low[son[x]]);    
+        }            
+        else
+            if(tag[k]!=id[x]) low[k]=min(low[k],dfn[son[x]]);
+    }
+    if(tag[k] && dfn[k]==low[k])
+		flag[tag[k]]=1;
+}
+    \end{lstlisting}
