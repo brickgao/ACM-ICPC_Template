@@ -1,0 +1,178 @@
+\subsection{Splay Tree}
+    Splay维护数列。
+    \begin{lstlisting}[language=c++]
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <iostream>
+#include <algorithm>
+#define id(x) (x+1)
+using namespace std;
+struct node
+{
+	int val,lmax,rmax,MAX,size,sum,rev;
+	bool sameflag;
+	node *a[2],*fa;
+	void set(node *t,int p){a[p]=t;t->fa=this;}
+	int dir(){return this==fa->a[1];}	
+	void pushdown()
+	{
+		if(size==0) return;
+		if(rev)
+		{
+			a[0]->rev^=1;
+			a[1]->rev^=1;
+			swap(a[0],a[1]);
+			swap(lmax,rmax);
+			rev=0;	
+		}
+		if(sameflag)
+		{
+			a[0]->sameflag=a[1]->sameflag=1;
+			a[0]->val=a[1]->val=val;
+			sum=val*size;
+			if(val>0) lmax=rmax=MAX=sum;
+			else lmax=rmax=MAX=val;
+			sameflag=0;
+		}	
+	}
+	void update()
+	{
+		if(size==0) return;
+		this->pushdown();a[0]->pushdown();a[1]->pushdown();
+		size=a[0]->size+a[1]->size+1;
+		sum=a[0]->sum+a[1]->sum+val;
+		lmax=max(a[0]->lmax,a[0]->sum+val+max(0,a[1]->lmax));
+		rmax=max(a[1]->rmax,a[1]->sum+val+max(0,a[0]->rmax));
+		MAX=max(a[0]->MAX,a[1]->MAX);	
+		MAX=max(MAX,max(0,a[0]->rmax+a[1]->lmax)+val);
+		MAX=max(MAX,max(a[0]->rmax,a[1]->lmax)+val);
+	}
+}tree[1000005],nulldata,*null=&nulldata,*stack[2000000];
+int num[5000005],tot,top;
+struct Splay
+{
+	node *root;
+	node *newnode(int k)
+	{
+		node *t;
+		if(top==0) t=&tree[++tot];
+		else t=stack[top--];
+		t->val=t->sum=k;
+		t->rev=t->sameflag=0;
+		t->lmax=t->rmax=t->MAX=k;
+		t->fa=t->a[0]=t->a[1]=null;
+		t->size=1;
+		return t;	
+	}
+	node *maketree(int l,int r,node *fa)
+	{
+		if(l>r) return null;
+		int mid=(l+r)>>1;
+		node *t=newnode(num[mid]);
+		t->a[0]=maketree(l,mid-1,t);
+		t->a[1]=maketree(mid+1,r,t);
+		t->fa=fa;
+		t->update();
+		return t;	
+	}	
+	void rotate(node *t)
+	{
+		node *fa=t->fa;int p=t->dir();
+		fa->pushdown(),t->pushdown();
+		fa->fa->set(t,fa->dir());
+		fa->set(t->a[!p],p);
+		t->set(fa,!p);	
+		fa->update();
+		if(fa==root) root=t;
+	}
+	void splay(node *t,node *fa=null)
+	{
+		if(t==null) return;
+		t->pushdown();
+		while(t->fa!=fa)
+		{
+			if(t->fa->fa==fa) rotate(t);
+			else t->dir()==t->fa->dir()?(rotate(t->fa),rotate(t)):(rotate(t),rotate(t));	
+		}	
+		t->update();
+	}
+	void select(int k,node *fa)
+	{
+		node *now=root;
+		while(1)
+		{
+			now->pushdown();
+			int tmp=now->a[0]->size;
+			if(k==tmp+1) break;
+			if(k<=tmp) now=now->a[0];
+			else k-=tmp+1,now=now->a[1];	
+		}	
+		splay(now,fa);
+	}
+}*splay;
+void recycle(node *t)
+{
+	if(t==null) return;
+	stack[++top]=t;
+	recycle(t->a[0]),recycle(t->a[1]);	
+}
+int main()
+{
+	int n,m,a,b,c;char op[100]; splay=new Splay; int t=0;  null->MAX=null->val=null->lmax=null->rmax=-914990825;
+	scanf("%d %d",&n,&m);  num[1]=-914990825;num[n+2]=-914990825;
+	for(int i=1;i<=n;i++) scanf("%d",&num[i+1]);
+	splay->root=splay->maketree(1,n+2,null);
+	for(int i=1;i<=m;i++)
+	{
+		scanf("%s",op);
+		if(op[0]=='I')
+		{
+			scanf("%d %d",&a,&b);	
+			for(int j=1;j<=b;j++) scanf("%d",&num[j]);
+			splay->select(id(a),null);
+			splay->select(id(a+1),splay->root);
+			splay->root->a[1]->a[0]=splay->maketree(1,b,splay->root->a[1]);
+			splay->splay(splay->root->a[1]->a[0]);
+		}
+		else if(op[0]=='D')
+		{
+			scanf("%d %d",&a,&b);
+			splay->select(id(a-1),null);
+			splay->select(id(a+b),splay->root);	
+			recycle(splay->root->a[1]->a[0]);
+			splay->root->a[1]->a[0]=null;
+			splay->splay(splay->root->a[1]);
+		}
+		else if(op[2]=='K')
+		{
+			scanf("%d %d %d",&a,&b,&c);
+			splay->select(id(a-1),null);
+			splay->select(id(a+b),splay->root);
+			splay->root->a[1]->a[0]->sameflag=1;
+			splay->root->a[1]->a[0]->val=c;
+			splay->splay(splay->root->a[1]->a[0]);	
+		}
+		else if(op[0]=='R')
+		{
+			scanf("%d %d",&a,&b);
+			splay->select(id(a-1),null);
+			splay->select(id(a+b),splay->root);
+			splay->root->a[1]->a[0]->rev^=1;
+			splay->splay(splay->root->a[1]->a[0]);
+		}
+		else if(op[0]=='G')
+		{
+			scanf("%d %d",&a,&b);
+			splay->select(id(a-1),null);	
+			splay->select(id(a+b),splay->root);
+			printf("%d\n",splay->root->a[1]->a[0]->sum); 
+			splay->splay(splay->root->a[1]->a[0]);
+		}
+		else printf("%d\n",splay->root->MAX);
+	}	
+//	system("pause");
+	return 0;
+}
+    \end{lstlisting} 
