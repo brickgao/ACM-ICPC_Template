@@ -1,0 +1,155 @@
+\subsection{树链剖分}
+    \begin{lstlisting}[language=c++]
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <iostream>
+#include <algorithm>
+using namespace std;
+struct node
+{
+	int MAX,sum,lc,rc,l,r;
+}tree[500005];
+int segpos[500005],dep[500005],now[500005],val[500005],son[500005],pre[500005],last[500005],tot,belong[500005],father[500005],size[500005],ROOT[500005];
+void add(int a,int b){son[++tot]=b;pre[tot]=last[a];last[a]=tot;}
+void maketree(int l,int r)
+{
+	tree[tot].l=l,tree[tot].r=r;
+	int k=tot,mid=(l+r)>>1;
+	if(l==r) 
+	{
+		tree[tot].sum=tree[tot].MAX=val[now[mid]];	
+		return ;
+	}
+	tree[k].lc=++tot;maketree(l,mid);
+	tree[k].rc=++tot;maketree(mid+1,r);
+	tree[k].MAX=max(tree[tree[k].lc].MAX,tree[tree[k].rc].MAX);
+	tree[k].sum=tree[tree[k].lc].sum+tree[tree[k].rc].sum;
+}
+void change(int root,int pos,int k)
+{
+	if(tree[root].l==tree[root].r)
+	{
+		tree[root].MAX=tree[root].sum=k;
+		return ;	
+	}
+	int mid=(tree[root].l+tree[root].r)>>1;
+	if(pos<=mid) change(tree[root].lc,pos,k);
+	else change(tree[root].rc,pos,k);
+	tree[root].MAX=max(tree[tree[root].lc].MAX,tree[tree[root].rc].MAX);
+	tree[root].sum=tree[tree[root].lc].sum+tree[tree[root].rc].sum;
+}
+int findsum(int root,int a,int b)
+{
+	if(tree[root].l>=a && tree[root].r<=b) 
+		return tree[root].sum;
+	int mid=(tree[root].l+tree[root].r)>>1,sum=0;
+	if(a<=mid) sum+=findsum(tree[root].lc,a,b);
+	if(b>mid) sum+=findsum(tree[root].rc,a,b);
+	return sum;
+}
+int findmax(int root,int a,int b)
+{
+	if(tree[root].l>=a && tree[root].r<=b)
+		return tree[root].MAX;
+	int mid=(tree[root].l+tree[root].r)>>1,MAX=-914990825;
+	if(a<=mid) MAX=max(MAX,findmax(tree[root].lc,a,b));
+	if(b>mid) MAX=max(MAX,findmax(tree[root].rc,a,b));
+	return MAX;
+}
+void dfs(int k)
+{
+	size[k]=1; int MAX=0,maxn=-1;
+	for(int x=last[k];x!=0;x=pre[x])
+	{
+		if(son[x]!=father[k])
+		{
+			father[son[x]]=k;
+			dep[son[x]]=dep[k]+1;
+			dfs(son[x]);
+			size[k]+=size[son[x]];
+			if(size[son[x]]>MAX)
+			{
+				MAX=size[son[x]];
+				maxn=son[x];	
+			}	
+		}	
+	}	
+	if(maxn!=-1)
+		belong[maxn]=1;
+}
+void build(int k)
+{
+	if(belong[k]) belong[k]=belong[father[k]];
+	else belong[k]=k;
+	int flag=0;
+	for(int x=last[k];x!=0;x=pre[x])
+		if(son[x]!=father[k])
+		{
+			build(son[x]);
+			flag=1;
+		}
+	if(!flag)
+	{
+		int cnt=0,i;
+		for(i=k;i!=belong[i];i=father[i])
+		{
+			segpos[i]=++cnt;
+			now[cnt]=i;
+		}
+		segpos[i]=++cnt; now[cnt]=i;
+		ROOT[belong[i]]=++tot;
+		maketree(1,cnt);
+	}
+}
+void find(int a,int b,int &MAX,int &sum)
+{
+	MAX=-914990825; sum=0;
+	while(belong[a]!=belong[b])
+	{
+		if(dep[belong[a]]<dep[belong[b]])
+			swap(a,b);
+		sum+=findsum(ROOT[belong[a]],segpos[a],segpos[belong[a]]);
+		MAX=max(MAX,findmax(ROOT[belong[a]],segpos[a],segpos[belong[a]]));
+		a=father[belong[a]];
+	}
+	if(segpos[a]>segpos[b])
+		swap(a,b);
+	sum+=findsum(ROOT[belong[a]],segpos[a],segpos[b]);
+	MAX=max(MAX,findmax(ROOT[belong[a]],segpos[a],segpos[b]));
+}
+int main()
+{
+	int n,m,a,b;
+	char op[10];
+	scanf("%d",&n);
+	for(int i=1;i<=n-1;i++)
+	{
+		scanf("%d %d",&a,&b);
+		add(a,b),add(b,a);	
+	}
+	for(int i=1;i<=n;i++)
+		scanf("%d",&val[i]);
+	tot=0; dfs(1); build(1);
+	scanf("%d",&m);
+	for(int i=1;i<=m;i++)
+	{
+		scanf("%s",op);
+		if(op[0]=='C') 
+		{
+			scanf("%d %d",&a,&b);
+			change(ROOT[belong[a]],segpos[a],b);	
+		}	
+		else
+		{
+			scanf("%d %d",&a,&b);
+			int sum,MAX;
+			find(a,b,MAX,sum);
+			if(op[1]=='S') printf("%d\n",sum);
+			else printf("%d\n",MAX);
+		}
+	}
+	return 0;
+}
+    \end{lstlisting}
