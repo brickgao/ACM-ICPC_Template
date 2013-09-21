@@ -1,0 +1,58 @@
+\subsection{最小生成树 Kruskal}
+Kruskal MST经过并查集优化。
+    \begin{lstlisting}[language=c++]
+typedef struct Line {
+    int u, v, c;
+    bool operator < (const Line &cmp) const {
+        return c < cmp.c;
+    }
+} Line;
+
+Line l[MAXN * MAXN];
+bool vis[MAXN * MAXN];
+int parent[MAXN], rk[MAXN];
+int n, m;
+
+void makeset(int n) {
+    for(int i = 1; i <= n; ++ i) {
+        parent[i] = i;
+        rk[i] = 0;
+    }
+}
+
+int getparent(int x) {
+    if(parent[x] == x)  return x;
+    else {
+        parent[x] = getparent(parent[x]);
+        return parent[x];
+    }
+}
+
+void unionset(int x, int y) {
+    if(rk[x] > rk[y])
+        parent[y] = x;
+    else {
+        parent[x] = y;
+        if(rk[x] == rk[y])
+            ++ rk[y];
+    }
+}
+
+void MST() {
+    int cnt = 0;
+    memset(vis, false, sizeof(vis));
+    sort(l, l + m);
+    makeset(n);
+    for(int i = 0; i < m; ++ i) {
+        int x = getparent(l[i].u);
+        int y = getparent(l[i].v);
+        if(x != y) {
+            unionset(x, y);
+            ++ cnt;
+            vis[i] = true;
+            if(cnt == n - 1)    break;
+        }
+    }
+    return;
+}
+    \end{lstlisting}
