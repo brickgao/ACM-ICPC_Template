@@ -1,0 +1,35 @@
+\subsection{求割点 Tarjan}
+child为根节点(root)的孩子数，大于1则是割点。
+    \begin{lstlisting}[language=c++]
+int cnt, root;
+vector <int> adj[MAXN];
+int dfn[MAXN], low[MAXN];
+bool invis[MAXN];
+
+int get_cut_point(int pre, int u) {
+    int child = 0;
+    int vis[u] = true;
+    dfn[u] = low[u] = ++ cnt;
+    for(int i = 0; i < adj[u].size(); ++ i) {
+        int v = adj[u][i];
+        if(!dfn[v]) {
+            ++ child;
+            get_cut_point(u, v);
+            if(u != root && dfn[u] <= low[v])
+                //u是割点
+            low[u] = min(low[u], dfn[v]);
+        }
+        else if(v != pre && invis[v])
+            low[u] = min(low[u], dfn[v]);
+    }
+    invis[u] = false;
+    return child;
+}
+
+void init() {
+    cnt = 0;
+    memset(invis, false, sizeof(invis));
+    memset(dfn, 0, sizeof(dfn));
+    memset(low, 0, sizeof(low));
+}
+    \end{lstlisting}
