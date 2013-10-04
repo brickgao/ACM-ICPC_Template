@@ -1,0 +1,140 @@
+\subsection{树套树}
+    \begin{lstlisting}[language=c++]
+struct node
+{
+	int val,size,father,a[2];	
+}tree[5000000];
+int tot,n,Null,src[10005],pree[10005],NONE=-INT_MAX;
+int newnode(int k)
+{
+	tot++;
+	tree[tot].father=tree[tot].a[1]=tree[tot].a[0]=Null;
+	tree[tot].val=k;tree[tot].size=1;
+	return tot;	
+}
+inline void update(const int& root)
+{
+    tree[root].size=tree[tree[root].a[0]].size+tree[tree[root].a[1]].size+1;
+}
+struct splaytree
+{
+	int head;
+	splaytree(){head=Null;}
+	void rotate(const int& root,const int& p)
+	{
+		int k=tree[root].father;
+		tree[k].a[!p]=tree[root].a[p];tree[root].father=tree[k].father;
+		if(tree[root].a[p]!=Null) tree[tree[root].a[p]].father=k;
+		if(tree[k].father!=Null) tree[tree[k].father].a[tree[tree[k].father].a[1]==k]=root;
+		tree[k].father=root;
+		tree[root].a[p]=k;
+		update(k);
+	}	
+	void splay(const int& root,const int& f)
+	{
+		while(tree[root].father!=f)
+		{
+			int k=tree[root].father,p1,p2;
+			if(tree[k].a[0]==root) p1=0;else p1=1;
+			if(tree[tree[k].father].a[0]==k) p2=0;else p2=1;
+			if(tree[k].father==f) rotate(root,1-p1);
+			else if(p1==p2) rotate(k,1-p2),rotate(root,1-p1);
+			else rotate(root,1-p1),rotate(root,1-p2);	
+		}	
+		update(root);
+		if(f==Null) head=root;
+	}
+	void insert(int k)
+	{
+		int now=head;
+		if(head==0) head=newnode(k),tree[tot].father=Null;
+		else
+		{	
+			while(1)
+			{
+				if(tree[now].a[k>tree[now].val]!=Null) now=tree[now].a[k>tree[now].val];
+				else break;
+			}	
+			tree[now].a[k>tree[now].val]=newnode(k);
+			tree[tot].father=now;
+			splay(tot,Null);
+		}
+	}
+	int countmin(int k)
+	{
+		int now=head,ans=0;
+		while(now!=Null)
+		{
+			if(tree[now].val==k) ans+=tree[tree[now].a[0]].size,now=tree[now].a[1];
+			else if(tree[now].val<k) ans+=tree[tree[now].a[0]].size+1,now=tree[now].a[1];
+			else now=tree[now].a[0];	
+		}	
+		return ans;
+	}
+	int find(int k)
+	{
+		int now=head;
+		while(1)
+		{
+			if(tree[now].val==k) return now;
+			if(tree[now].val>k) now=tree[now].a[0];
+			else now=tree[now].a[1];	
+		}	
+		return Null;
+	}
+	int findpre(int now,int k)
+	{
+		if(now==Null) return NONE;
+		if(tree[now].val<k) 
+		{
+			int p=findpre(tree[now].a[1],k);
+			if(p!=NONE) return p;
+			return tree[now].val;	
+		}	
+		return findpre(tree[now].a[0],k);
+	}
+	int findnext(int now,int k)
+	{
+		if(now==Null) return NONE;
+		if(tree[now].val>k) 
+		{
+			int p=findnext(tree[now].a[0],k);
+			if(p!=NONE) return p;
+			return tree[now].val;	
+		}	
+		return findnext(tree[now].a[1],k);
+	}
+	int findpre(int k){return findpre(head,k);}
+	int findnext(int k){return findnext(head,k);}
+	int findmax(int root){while(tree[root].a[1]!=Null) root=tree[root].a[1];return root;}
+	void del(int k)
+	{
+		int now=find(k);splay(now,Null);
+		if(tree[now].a[0]==Null) {head=tree[now].a[1],tree[head].father=Null;return;}	
+		if(tree[now].a[1]==Null) {head=tree[now].a[0],tree[head].father=Null;return;}
+		int x=findmax(tree[now].a[0]);splay(x,now);
+		tree[x].a[1]=tree[now].a[1];tree[tree[now].a[1]].father=x;
+		head=x;update(head);tree[head].father=Null;
+	}
+}c[10005],color[1000005];
+int findsum(int x,int limit)
+{
+	int ans=0;
+	for(;x>=1;x-=(x&(-x))) ans+=c[x].countmin(limit);
+	return ans;	
+}
+void del(int x,int k)
+{
+	for(;x<=n;x+=(x&(-x))) c[x].del(k);	
+}
+void insert(int x,int k)
+{
+	for(;x<=n;x+=(x&(-x))) c[x].insert(k);
+}
+void makechange(int now,int next)
+{
+	del(now,pree[now]);
+	pree[now]=next;
+	insert(now,pree[now]);	
+}
+    \end{lstlisting}
