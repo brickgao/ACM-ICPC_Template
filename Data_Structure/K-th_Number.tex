@@ -1,0 +1,65 @@
+\subsection{第K值}
+    \begin{lstlisting}[language=c++]
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <iostream>
+#include <algorithm>
+using namespace std;
+struct SegT
+{
+    int l,r,lc,rc,sum;
+}tree[233333*9];
+int val[233333],s[233333],tot,ROOT[233333];
+int maketree(int l,int r)
+{
+    int k=++tot;
+    tree[tot].l=l,tree[tot].r=r;
+    if(l==r)
+        return k;
+    int mid=(l+r)>>1;    
+    tree[k].lc=maketree(l,mid);
+    tree[k].rc=maketree(mid+1,r);
+    return k;
+}
+int change(int pre,int pos)
+{
+    int k=++tot;
+    tree[k]=tree[pre];
+    tree[k].sum++;
+    if(tree[k].l==tree[k].r)
+        return k;
+    int mid=(tree[k].l+tree[k].r)>>1;
+    if(pos<=mid) tree[k].lc=change(tree[pre].lc,pos),tree[k].rc=tree[pre].rc;
+    else tree[k].rc=change(tree[pre].rc,pos),tree[k].lc=tree[pre].lc;
+    return k;
+}
+int find(int now,int pre,int k)
+{
+    if(tree[now].l==tree[now].r)
+        return tree[now].l;
+    int tmp=tree[tree[now].lc].sum-tree[tree[pre].lc].sum;
+    if(tmp>=k)
+        return find(tree[now].lc,tree[pre].lc,k);
+    return find(tree[now].rc,tree[pre].rc,k-tmp);
+}
+int main() {
+    int n,m;
+    scanf("%d %d",&n,&m);
+    for(int i=1;i<=n;i++)
+        scanf("%d",&val[i]);
+    memcpy(s,val,sizeof(val));
+    sort(s+1,s+1+n);
+    ROOT[0]=maketree(1,n);
+    for(int i=1;i<=n;i++)
+        ROOT[i]=change(ROOT[i-1],lower_bound(s+1,s+1+n,val[i])-s);
+    for(int i=1;i<=m;i++)
+    {
+        int a,b,c;
+        scanf("%d %d %d",&a,&b,&c);
+        printf("%d\n",s[find(ROOT[b],ROOT[a-1],c)]);
+    }
+    return 0;
+}
+    \end{lstlisting}
