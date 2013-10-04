@@ -1,0 +1,158 @@
+\subsection{Tire Tree}
+    \begin{lstlisting}[language=c++]
+const int N = 26;
+
+struct node {
+    bool tag;
+    node *child[N];
+    node() {
+        tag = false;
+        for(int i = 0; i < N; i ++)
+            child[i] = NULL;
+    }
+}*rt;
+
+void insert(char s[]) {
+    node *p = rt;
+    int k;
+    for(int i = 0; s[i]; i ++, p = p->child[k]) {
+        k = s[i] - 'a';
+        if(!p->child[k])
+            p->child[k] = new node();
+    }
+    p->tag = true;
+}
+
+bool search(char s[]) {
+    node *p = rt;
+    int k;
+    for(int i = 0; s[i]; i ++, p = p->child[k]) {
+        k = s[i] - 'a';
+        if(!p->child[k])
+            return false;
+    }
+    return p->tag;
+}
+
+void delet(node *p) {
+    for(int i = 0; i < N; i ++) 
+        if(p->child[i])
+            delet(p->child[i]);
+    delete(p);
+}
+
+int main() {
+    return 0;
+}
+    \end{lstlisting}
+可持续化版本
+    \begin{lstlisting}[language=c++]
+int next[3333333][2],size[3333333];
+int father[223333],last[323333],pre[333333],son[333333],tot,tag;
+int n,m,f[123333][21];
+int root[333333],dist[333333],head,tail,que[333333],val[333333];
+void add(int a,int b)
+{
+    tot++;
+    son[tot]=b;
+    pre[tot]=last[a];
+    last[a]=tot;
+}
+void bfs()
+{
+    dist[1]=1;
+    que[tail++]=1;
+    while(head<tail)
+    {
+        int p=que[head++];
+        for(int x=last[p];x!=0;x=pre[x])
+        {
+            if(f[p][0]!=son[x])
+            {
+                dist[son[x]]=dist[p]+1;
+                f[son[x]][0]=p;
+                que[tail++]=son[x];
+                for(int j=1;j<18;j++)
+                    f[son[x]][j]=f[f[son[x]][j-1]][j-1];
+            }    
+        }    
+    }
+}
+int lca(int a,int b)
+{
+    if(dist[a]>dist[b]) swap(a,b);
+    for(int i=17;i>=0;i--)
+    {
+        if(dist[f[b][i]]>=dist[a]) b=f[b][i];
+        if(a==b) return a;    
+    }    
+    for(int i=17;i>=0;i--)
+        if(f[a][i]!=f[b][i]) a=f[a][i],b=f[b][i];
+    return f[a][0];
+}
+void ins(int k,int par,int pos,int c)
+{
+    if(pos<0)
+        return ;
+    int tmp=(c>>pos)&1;
+    next[k][1-tmp]=next[par][1-tmp];
+    next[k][tmp]=++tag;
+    size[next[k][tmp]]=size[next[par][tmp]]+1;
+    ins(next[k][tmp],next[par][tmp],pos-1,c);
+}
+int find(int a,int b,int c)
+{
+    int ans=0;
+    for(int i=15;i>=0;i--)
+    {
+        int tmp=((c>>i)&1);
+        if(size[next[a][1-tmp]]-size[next[b][1-tmp]]>0)
+        {
+            ans+=(1<<i);
+            a=next[a][1-tmp];
+            b=next[b][1-tmp];
+        }
+        else 
+        {
+            a=next[a][tmp];
+            b=next[b][tmp];
+        }
+    }
+    return ans;
+}
+int main() {
+    while(scanf("%d %d",&n,&m)!=EOF)
+    {
+        head=tail=tag=0;
+        tot=0;
+        for(int i=1;i<=n;i++)
+            scanf("%d",&val[i]),last[i]=0,size[i]=0,dist[i]=0,f[i][0]=0;
+        for(int i=1;i<=n-1;i++)
+        {
+            int a,b;
+            scanf("%d %d",&a,&b);
+            add(a,b);
+            add(b,a);
+        } 
+        bfs(); 
+        for(int i=0;i<tail;i++)
+        {
+            root[que[i]]=++tag;
+            ins(root[que[i]],root[f[que[i]][0]],15,val[que[i]]);
+        }
+        for(int i=1;i<=m;i++)
+        {
+            int a,b,c;
+            scanf("%d %d %d",&a,&b,&c);
+            int p=lca(a,b);
+            int ans=val[p]^c;
+            if(a!=p)
+                ans=max(ans,find(root[a],root[p],c));
+            if(b!=p)
+                ans=max(ans,find(root[b],root[p],c));
+            printf("%d\n",ans);
+        }
+    }
+    return 0;
+}
+    \end{lstlisting}
