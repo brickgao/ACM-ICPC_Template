@@ -1,0 +1,40 @@
+\subsection{费用流}
+    \begin{lstlisting}[language=c++]
+bool spfa()
+{
+    int head,tail;
+	memset(dist,127,sizeof(dist));	
+	que[head=tail=1]=s; dist[s]=0;
+	while(head<=tail)
+	{
+		int p=que[head++];
+		for(int x=last[p];x!=0;x=pre[x])
+		{
+			if(len[x]>0 && dist[son[x]]>dist[p]+cost[x])
+			{
+				dist[son[x]]=dist[p]+cost[x];
+				P[son[x]]=x;
+				que[++tail]=son[x];	
+			}	
+		}	
+	}
+	return dist[t]<dist[100000];
+}
+int main()
+{
+	while(spfa())
+	{
+		flow=914990825;
+		for(int now=t;now!=s;now=from[P[now]])
+			flow=min(flow,len[P[now]]);
+		for(int now=t;now!=s;now=from[P[now]])
+		{
+			len[P[now]]-=flow;	
+			if(P[now]&1) len[P[now]+1]+=flow;
+			else len[P[now]-1]+=flow;
+		}
+		ans1+=flow;
+		ans2+=dist[t]*flow;
+	}
+}
+    \end{lstlisting}
