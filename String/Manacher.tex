@@ -1,0 +1,12 @@
+\subsection{Manacher 子回文串算法}
+    \begin{lstlisting}[language=c++]
+scanf(%s,str);
+for(int i=0;im;i++) a[i2]='',a[2i+1]=str[i];
+n=m2;a[n++]='';p[0]=1; int id=0,MAX=0;
+for(int i=1;in;i++)
+{
+	p[i]=max(min(p[id2-i],MAX-i),1);
+	while(i=p[i] && i+p[i]n && a[i+p[i]]==a[i-p[i]]) p[i]++;
+	if(p[i]+i-1MAX) MAX=p[i]+i-1,id=i;
+}
+    \end{lstlisting}
