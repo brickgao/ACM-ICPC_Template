@@ -1,0 +1,48 @@
+\subsection{后缀数组}
+    \begin{lstlisting}[language=c++]
+void radixsort()
+{
+	for(int y=1;y>=0;y--)
+	{
+		memset(c,0,sizeof(c));
+		for(int i=1;i<=n;i++) c[re[i].k[y]]++;
+		for(int i=1;i<=max(256,n);i++) c[i]+=c[i-1];
+		for(int i=n;i>=1;i--) rt[c[re[i].k[y]]--]=re[i];
+		for(int i=1;i<=n;i++) re[i]=rt[i];	
+	}	
+	for(int i=1;i<=n;i++)
+	{
+		rank[re[i].id]=rank[re[i-1].id];
+		if(re[i].k[0]!=re[i-1].k[0] || re[i].k[1]!=re[i-1].k[1])
+			rank[re[i].id]++;	
+	}
+}
+void calsa()
+{
+	re[0].k[0]=-1;
+	for(int i=1;i<=n;i++)
+		re[i].id=i,re[i].k[0]=str[i],re[i].k[1]=0;
+	radixsort();
+	for(int k=1;k<=n;k*=2)
+	{
+		for(int i=1;i<=n;i++)
+			re[i].id=i,re[i].k[0]=rank[i],re[i].k[1]=i+k<=n?rank[i+k]:0;
+		radixsort();	
+	}	
+	for(int i=1;i<=n;i++)
+		sa[rank[i]]=i;
+}
+void calh()
+{
+	for(int i=1,h=0;i<=n;i++)
+	{
+		if(rank[i]==1) h=0;
+		else 
+		{
+			int k=sa[rank[i]-1];
+			for(h=max(0,h-1);str[k+h]==str[i+h];h++);	
+		}	
+		height[rank[i]]=h;
+	}	
+}
+    \end{lstlisting}
