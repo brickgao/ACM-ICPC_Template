@@ -1,0 +1,15 @@
+\subsection{快速幂}
+    \begin{lstlisting}[language=c++]
+lint quickpow(lint a, lint b, lint m) {  
+    lint ans = 1;  
+    while(b) {  
+        if(b & 1) {  
+            ans = (ans * a) % m;
+            -- b;
+        }  
+        b >>= 1;
+        a = a * a % m;  
+    }  
+    return ans;
+}  
+    \end{lstlisting}
