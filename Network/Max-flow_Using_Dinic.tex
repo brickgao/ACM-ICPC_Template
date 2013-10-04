@@ -1,4 +1,5 @@
 \subsection{最大流 Dinic}
+用邻间表实现。
     \begin{lstlisting}[language=c++]
 struct Edge {
     int u, v, cap;
@@ -72,5 +73,57 @@ int dinic() {
         }
     }
     return maxflow;
+}
+    \end{lstlisting}
+用链表实现。
+    \begin{lstlisting}[language=c++]
+bool bfs()
+{
+	while(!que.empty()) que.pop();
+	memset(dist,-1,sizeof(dist));
+	dist[s]=0;
+	que.push(s);
+	while(!que.empty())	
+	{
+		int p=que.front();
+		que.pop();
+		for(int x=last[p];x!=0;x=pre[x])
+		{
+			if(len[x]>0 && dist[son[x]]<0)
+			{
+				dist[son[x]]=dist[p]+1;
+				que.push(son[x]);	
+			}	
+		}
+	}
+	return dist[t]>0;
+}
+int find(int k,int flow)
+{
+	if(k==t) return flow;
+	int f=0,tmp;
+	for(int x=last[k];x!=0 && f<flow;x=pre[x])
+	{
+		if(len[x]>0 && dist[son[x]]==dist[k]+1)
+		{
+			tmp=find(son[x],min(flow-f,len[x]));
+			if(tmp==0) dist[son[x]]=-1;
+			else 
+			{
+				f+=tmp;
+				len[x]-=tmp;
+				if(x&1) len[x+1]+=tmp;
+				else len[x-1]+=tmp;	
+			}	
+		}	
+	}	
+	return f;
+}
+int main()
+{
+	int tmp,ans=0;
+	while(bfs())
+		while(tmp=find(s,914990825))
+			ans+=tmp;
 }
     \end{lstlisting}
