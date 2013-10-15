@@ -1,0 +1,41 @@
+\subsection{2-sat}
+    \begin{lstlisting}[language=c++]
+int n, m;
+vector <int> mp[MAXN << 1];
+bool mark[MAXN << 1];
+int S[MAXN << 1], c;
+
+bool dfs(int u) {
+    if(mark[u ^ 1]) return false;
+    if(mark[u])     return true;
+    mark[u] = true;
+    S[c ++] = u;
+    for(int i = 0; i < SZ(mp[u]); ++ i)
+        if(!dfs(mp[u][i]))    return false;
+    return true;
+}
+
+void init() {
+    for(int i = 0; i < (n << 1); ++ i) mp[i].clear();
+    memset(mark, false, sizeof(mark));
+}
+
+void add_clause(int x, int xval, int y, int yval) {
+    x = x * 2 + xval;
+    y = y * 2 + yval;
+    mp[x ^ 1].push_back(y);
+    mp[y ^ 1].push_back(x);
+}
+
+bool solve() {
+    for(int i = 0; i < (n << 1); i += 2) 
+        if(!mark[i] && !mark[i + 1]) {
+            c = 0;
+            if(!dfs(i)) {
+                while(c > 0)    mark[S[-- c]] = false;
+                if(!dfs(i + 1)) return false;
+            }
+        }
+    return true;
+}
+    \end{lstlisting}
