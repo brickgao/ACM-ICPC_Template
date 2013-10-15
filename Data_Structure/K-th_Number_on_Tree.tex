@@ -1,23 +1,5 @@
 \subsection{树上第K值}
     \begin{lstlisting}[language=c++]
-#include <cmath>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <iostream>
-#include <algorithm>
-#include <map>
-#include <set>
-#include <vector>
-#include <string>
-#include <queue>
-using namespace std;
-#define out(v) cerr << #v << ": " << (v) << endl
-#define SZ(v) ((int)(v).size())
-#define pb push_back
-const int maxint = -1u>>1;
-template <class T> bool get_max(T& a, const T &b) {return b > a? a = b, 1: 0;}
-template <class T> bool get_min(T& a, const T &b) {return b < a? a = b, 1: 0;}
 struct SegT
 {
     int l,r,sum,lc,rc;
