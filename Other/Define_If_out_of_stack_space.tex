@@ -5,4 +5,23 @@ c ++
     \end{lstlisting}
 g ++
     \begin{lstlisting}[language=c++]
+char* MyStack=new char[33554432];
+int main() {
+    char* SysStack=NULL;
+    MyStack+=33554432-1048576;  //32M
+    __asm__
+    (
+        "movl %%esp,%%eax\n\t"
+        "movl %1,%%esp\n\t"
+        :"=a"(SysStack)
+        :"m"(MyStack)
+    );
+    //自己的东西
+    __asm__
+    (
+        "movl %0,%%esp\n\t"
+       ::"m"(SysStack) 
+    );
+    return 0;
+}
     \end{lstlisting}
