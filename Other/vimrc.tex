@@ -1,0 +1,81 @@
+\subsection{vim配置文件-vimrc}
+    \begin{lstlisting}[language=c++]
+source $VIMRUNTIME/mswin.vim
+behave mswin
+imap <cr> <cr><left><right>
+imap <c-]> {<cr>}<c-o>O<left><right>
+imap <c-d> <c-o>dd
+map <f6> =a{
+map <c-t> :tabnew<cr>
+syn on
+colo ron
+set gfn=Courier\ 10\ Pitch\ 12
+set ru nu et sta nowrap ar acd ww=<,>,[,] sw=4 ts=4 cin noswf
+syn on
+hi LineNr guifg=LightBlue
+set autochdir
+set hlsearch
+set selection=inclusive
+
+map <f9> :call CR2()<cr><space>
+func CR2()
+exec "update"
+exec "!xterm -u8 -fn 10*20 -e \"g++ %<.cpp -Wall -o %< && time ./%< ; read -n 1\""
+endfunc
+
+map <f10> :call CR()<cr><space>
+func CR()
+exec "update"
+exec "!xterm -u8 -fn 10*20 -e \"g++ %<.cpp -Wall -o %< && time ./%< < %<.in ; read -n 1\""
+endfunc
+
+map <f2> :call CR3()<cr><space>
+func CR3()
+let l = 0
+let l = l + 1 | call setline(l, '/*')
+let l = l + 1 | call setline(l, ' * Author: FreeArcanite@WHU')
+let l = l + 1 | call setline(l, ' * Created Time:  '.strftime('%F %R'))
+let l = l + 1 | call setline(l, ' * File Name: '.expand('%'))
+let l = l + 1 | call setline(l, ' */')
+let l = l + 1 | call setline(l, '#include <iostream>')
+let l = l + 1 | call setline(l, '#include <cstdio>')
+let l = l + 1 | call setline(l, '#include <algorithm>')
+let l = l + 1 | call setline(l, '#include <cmath>')
+let l = l + 1 | call setline(l, '#include <cstring>')
+let l = l + 1 | call setline(l, '#include <string>')
+let l = l + 1 | call setline(l, '#include <map>')
+let l = l + 1 | call setline(l, '#include <vector>')
+let l = l + 1 | call setline(l, '#include <queue>')
+let l = l + 1 | call setline(l, '#include <stack>')
+let l = l + 1 | call setline(l, '#include <set>')
+let l = l + 1 | call setline(l, '#include <list>')
+let l = l + 1 | call setline(l, '#include <iomanip>')
+let l = l + 1 | call setline(l, '#define out(v) cout << #v << " " << v << endl')
+let l = l + 1 | call setline(l, '#define filn freopen("in.txt", "r", stdin)')
+let l = l + 1 | call setline(l, '#define flout freopen("out.txt", "w", stdout)')
+let l = l + 1 | call setline(l, '#define pb push_back')
+let l = l + 1 | call setline(l, '#define PI acos(-1.0)')
+let l = l + 1 | call setline(l, 'using namespace std;')
+let l = l + 1 | call setline(l, 'typedef long long lint;')
+let l = l + 1 | call setline(l, 'const int inf = 1e9 + 7;')
+let l = l + 1 | call setline(l, 'const double eps = 1e-8;')
+let l = l + 1 | call setline(l, 'inline int sgn(const double x) {return (x > eps) - (x < -eps);}')
+let l = l + 1 | call setline(l, 'template <class T> T _abs(T x) {if(x < 0) x = -x; return x;}')
+let l = l + 1 | call setline(l, 'template <class T> bool get_max(T &a, const T b) {return a < b ? a = b, true : false;}')
+let l = l + 1 | call setline(l, 'template <class T> bool get_min(T &a, const T b) {return a > b ? a = b, true : false;}')
+let l = l + 1 | call setline(l, 'template <class T> void _swap(T &a, T &b) {T t = a; a = b; b = t;}')
+let l = l + 1 | call setline(l, '')
+let l = l + 1 | call setline(l, 'int main() {')
+let l = l + 1 | call setline(l, '    return 0;')
+let l = l + 1 | call setline(l, '}')
+endfunc
+
+map <f4> :call AddComment()<cr>
+func AddComment()
+	if (getline('.')[0] == '/')
+		normal ^xx
+	else
+		normal 0i//
+	endif
+endfunc
+    \end{lstlisting}
