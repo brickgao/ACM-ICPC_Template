@@ -1,0 +1,58 @@
+\subsection{最小圆覆盖}
+    \begin{lstlisting}[language=c++]
+const double eps=1e-8;
+const int N=100010;
+struct P
+{ 
+    double x,y;
+};
+P point[N],cir;
+double R;
+int n;
+double dis(P a,P b)
+{
+    return(a.x-b.x)*(a.x-b.x)+(a.y-b.y)*(a.y-b.y); 
+}
+inline void makecir(P a,P b)
+{
+    cir.x=(a.x+b.x)/2.0;
+    cir.y=(a.y+b.y)/2.0;
+    R=dis(cir,b);
+}
+int main()
+{
+    int i,j,k;
+    double a1,b1,c1,a2,b2,c2,s;
+    scanf("%d",&n);
+    for(i=1;i<=n;i++)
+    scanf("%lf%lf",&point[i].x,&point[i].y);
+    random_shuffle(point+1,point+1+n);
+    makecir(point[1],point[2]);
+    for(i=3;i<=n;i++)
+    if(dis(cir,point[i])>R-eps)
+    {
+        makecir(point[1],point[i]);
+        for(j=2;j<i;j++)
+        if(dis(cir,point[j])>R-eps)
+        {
+            makecir(point[i],point[j]);
+            for(k=1;k<j;k++)
+            if(dis(cir,point[k])>R-eps)
+            {
+                a1=2*(point[j].x-point[i].x),b1=2*(point[j].y-point[i].y),
+                c1=-(point[j].x*point[j].x-point[i].x*point[i].x+point[j].y*point[j].y-point[i].y*point[i].y);
+                a2=2*(point[k].x-point[i].x),b2=2*(point[k].y-point[i].y),
+                c2=-(point[k].x*point[k].x-point[i].x*point[i].x+point[k].y*point[k].y-point[i].y*point[i].y);
+                s=a1*b2-a2*b1;
+                if(fabs(s)>eps)
+                {
+                    cir.x=(b1*c2-b2*c1)/s;
+                    cir.y=(a2*c1-a1*c2)/s;
+                    R=dis(cir,point[i]);
+                }
+            }
+        }
+    }
+    printf("%.10lf\n%.10lf %.10lf",sqrt(R),cir.x,cir.y);
+}
+    \end{lstlisting}
