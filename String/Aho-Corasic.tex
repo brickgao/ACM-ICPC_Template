@@ -1,41 +1,47 @@
 \subsection{AC自动机}
     \begin{lstlisting}[language=c++]
-int next[MAXN];
-
-void getNext(char t[]) {
-    int m = strlen(t);
-    int j = 0, k = -1;
-    next[0] = -1;
-    while(j < m) {
-        if(k == -1 || t[j] == t[k])
-            next[++j] = ++k;
-        else 
-            k = next[k];
-    }
+void insert(char *s)
+{
+	int now=1;
+	for(;*s;s++)
+	{
+		if(tree[now].next[*s-'a']==0) 
+			tree[now].next[*s-'a']=++tot;
+		now=tree[now].next[*s-'a'];	
+	}	
+	tree[now].flag++;
 }
-
-int kmpCount(char s[], char t[], int c[]) {
-    int ans = 0;
-    int j = 0;
-    int n = strlen(s);
-    int m = strlen(t);
-    if(n == 1 && m == 1) {
-        if(s[0] == t[0])
-            return 1;
-        else 
-            return 0;
-    }
-    getNext(t);
-    for(int i = 0; i < n; i ++) {
-        while(j > 0 && s[i] != t[j])
-            j = next[j];
-        if(s[i] == t[j])
-            j ++;
-        if(j == m) {
-            c[ans++] = i - m + 1;
-            j = next[j];
-        }
-    }
-    return ans;
+void buildac()
+{
+	que[tail++]=1;
+	while(head<tail)
+	{
+		int p=que[head++];
+		for(int i=0;i<26;i++)
+		{
+			int t=tree[p].next[i];
+			tree[t].fail=p==1?1:tree[tree[p].fail].next[i];
+			if(t==0) tree[p].next[i]=tree[t].fail;
+			else que[tail++]=t;	
+		}	
+	}	
+}
+int find(char *s)
+{
+	int now=1,ans=0;
+	for(;*s;s++)
+	{
+		while(tree[now].next[*s-'a']==0 && now!=1) now=tree[now].fail;
+		now=tree[now].next[*s-'a'];
+		now=(now==0)?1:now;
+		int tmp=now;
+		while(tmp!=1)
+		{
+			ans+=tree[tmp].flag;
+			tree[tmp].flag=0;
+			tmp=tree[tmp].fail;
+		}	
+	}	
+	return ans;
 }
     \end{lstlisting}
