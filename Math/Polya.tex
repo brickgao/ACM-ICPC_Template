@@ -1,0 +1,128 @@
+\subsection{Polya定理}
+题意为：给你c种颜色的珠子，和一个长度为s(c,s<32)的项链，用这c种珠子串成这个项链，项链可以旋转和翻转，经过旋转和翻转所得的项链视为同一种项链，现在告诉你颜色总数c和项链的长度s，求共能组成几条不同的项链。
+1.旋转置换
+    依次顺时针旋转1 ~ n个，循环个数为gcd(i, n)
+2.翻转置换
+    当n为偶数时,分两种情况,一种是中心轴在两个对称对象上,则循环个数为n/2+1,另一种是对称轴两边分别有n/2个对象,则循环个数为n/2;
+    当n为奇数时,对称轴就只能在一个对象上,则循环个数为n/2+1;
+    \begin{lstlisting}[language=c++]
+int c, s, ans;
+
+int gcd(int a, int b) {
+    if(b == 0)  return a;
+    return gcd(b, a % b);
+}
+
+void solve() {
+    int t = 0;
+    ans = 0;
+    for(int i = 1; i <= s; i ++) {
+        ans += pow(c, gcd(i, s));
+        t ++;
+    }
+    if(s % 2 == 0) {
+        for(int i = 0; i < s / 2; i ++) {
+            ans += pow(c, s / 2);
+            t ++;
+        }
+        for(int i = 0; i < s / 2; i ++) {
+            ans += pow(c, s / 2 + 1);
+            t ++;
+        }
+    }
+    else {
+        for(int i = 0; i < s; i ++) {
+            ans += pow(c, s / 2 + 1);
+            t ++;
+        }
+    }
+    ans /= t;
+}
+
+int main() {
+    while(scanf("%d%d", &c, &s) != EOF) {
+        if(c == 0 && s == 0) {
+            return 0;
+        }
+        solve();
+        printf("%d\n", ans);
+    }
+    return 0;
+}
+    \end{lstlisting}
+给出两个整数n和p，代表n个珠子，n种颜色，要求不同的项链数，并对结果mod（p）处理，置换只有旋转一种形式。
+这道题代表了一类题目的优化
+裸的算法是 ∑n(gcd(n,i)) 1<i<=n
+复杂度过高，进行优化。
+置换群种循环的个数L = n / gcd(n, i)
+因为如果L | n, 则有n / L | n
+则环的长度L的范围是1 ~ sqrt(L)
+令a = gcd(n, i), 设i = at
+则只有i与t互质的时候，gcd(i, t) = a
+则最后可以优化为 ∑(Φ(i) * n \^ (i)) \% p
+
+    \begin{lstlisting}[language=c++]
+long long ans;
+int t, num, n, p;
+int isprime[50001];
+int prime[8001];
+
+void getprime() {
+    num = 0;
+    for(int i = 2; i <= 50000; i ++) {
+        if(!isprime[i]) {
+            prime[num ++] = i;
+            for(int j = 1; j * i <= 50000; j ++) {
+                isprime[i * j] = 1;
+            }
+        }
+    }
+}
+
+int euler(int x) {
+    int res = x;
+    for(int i = 0; i < num && prime[i] * prime[i] <= x; i++) {
+        if(x % prime[i] == 0) {
+            res = res / prime[i] * (prime[i] - 1);
+            while(x % prime[i] == 0) {
+                x /= prime[i];
+            }
+        }
+    }
+    if(x > 1) res = res / x * (x - 1);
+    return res;
+}
+
+LL quickpow(LL m , LL n , LL k) {
+    LL tmp = 1; 
+    m %= k;
+    while(n) { 
+        if(n & 1)
+            tmp = (tmp * m) % k; 
+        m = (m * m) % k;
+        n >>= 1;
+    } 
+    return tmp;
+} 
+
+int main() {
+    getprime();
+    scanf("%d", &t);
+    while(t --) {
+        ans = 0;
+        scanf("%d%d", &n, &p);
+        for(int i = 1; i < sqrt(n); i ++) {
+            if(n % i == 0) {
+                ans = (ans + euler(i) % p * quickpow(n, n / i - 1, p) + euler(n / i) % p * quickpow(n, i - 1, p)) % p;
+                //cout << quickpow(n,n-1,p) << " " << quickpow(n, n / i - 1, p) << " " << euler(i) << " " << euler(n / i) << endl;
+            }
+        }
+        if((int)sqrt(n) * (int)sqrt(n) == n) {
+            ans = (ans + quickpow(n, sqrt(n) - 1, p) * (euler(sqrt(n)) % p)) % p;
+        }
+        ans %= p;
+        cout << ans << endl;
+    }
+    return 0;
+}
+    \end{lstlisting}
