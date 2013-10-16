@@ -1,0 +1,86 @@
+\subsection{k-d tree第k远点}
+    \begin{lstlisting}[language=c++]
+const int N=100100;
+struct P
+{
+	int x,y,id;
+}cp[N],Q;
+struct node
+{
+	node *c[2];
+	int x,y,minx,miny,maxx,maxy,p;
+}mem[N*3],*cur=mem,*root;
+struct ANS
+{
+	big d;
+	int id;
+}ans[30];
+int vis[N],cas,k;
+bool cmpx(const P &a,const P &b){return a.x<b.x||(a.x==b.x&&a.y<b.y);}
+bool cmpy(const P &a,const P &b){return a.y<b.y||(a.y==b.y&&a.x<b.x);}
+big dis(int a,int b){return 1ll*a*a+1ll*b*b;}
+node *build(int l,int r,bool t)
+{
+	if(l>r)return NULL;
+	sort(cp+l,cp+r+1,t?cmpy:cmpx);
+	int mid=(l+r)>>1;
+	node *p=cur++;
+	p->c[0]=p->c[1]=NULL;
+	p->p=cp[mid].id;
+	p->x=p->minx=p->maxx=cp[mid].x;
+	p->y=p->miny=p->maxy=cp[mid].y;
+	if(l==r)return p;
+	p->c[0]=build(l,mid-1,!t);
+	p->c[1]=build(mid+1,r,!t);
+	for(int i=0;i<2;i++)
+	if(p->c[i])
+	{
+		p->minx=min(p->minx,p->c[i]->minx);
+		p->maxx=max(p->maxx,p->c[i]->maxx);
+		p->miny=min(p->miny,p->c[i]->miny);
+		p->maxy=max(p->maxy,p->c[i]->maxy);
+	}
+	return p;
+}
+void update(big d,int id)
+{
+	if(d<ans[k].d)return ;
+	static int i,j;
+	for(i=1;i<=k;i++)
+	if(ans[i].d<d||(ans[i].d==d&&ans[i].id>id))
+	{
+		for(j=k;j>i;j--)ans[j]=ans[j-1];
+		ans[i].d=d;ans[i].id=id;
+		return ;
+	}
+}
+void query(node *tr,int l,int r,bool t)
+{
+	if(tr==NULL)return ;
+	if(vis[tr->p]!=cas)vis[tr->p]=cas,update(dis(tr->x-Q.x,tr->y-Q.y),tr->p);
+	if(l==r||dis(max(Q.x-tr->minx,tr->maxx-Q.x),max(Q.y-tr->miny,tr->maxy-Q.y))<ans[k].d)return ;
+	int mid=(l+r)>>1;
+	(t?(Q.y<tr->y||(Q.x<tr->x&&Q.y==tr->y)):(Q.x<tr->x||(Q.y<tr->y&&Q.x==tr->x)))
+	?(query(tr->c[1],mid+1,r,!t),query(tr->c[0],l,mid-1,!t)):
+	(query(tr->c[0],l,mid-1,!t),query(tr->c[1],mid+1,r,!t));
+}
+int main()
+{
+	int i,n,m;
+	cas=1;
+	scanf("%d",&n);
+	for(i=1;i<=n;i++)
+	scanf("%d%d",&cp[i].x,&cp[i].y),cp[i].id=i;
+	root=build(1,n,0);
+	scanf("%d",&m);
+	while(m--)
+	{
+		cas++;
+		scanf("%d%d%d",&Q.x,&Q.y,&k);
+		for(i=1;i<=k;i++)
+		ans[i].id=n+1,ans[i].d=-1;
+		query(root,1,n,0);
+		printf("%d\n",ans[k].id);
+	}
+}
+    \end{lstlisting}
