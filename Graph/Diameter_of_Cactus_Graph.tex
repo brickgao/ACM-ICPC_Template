@@ -1,0 +1,58 @@
+\subsection{仙人掌图直径}
+    \begin{lstlisting}[language=c++]
+int ans,son[500000],last[500000],pre[500000],tot,NOW,dfn[500000],low[500000],a[500000],f[500000],father[500000],que[500000];
+void add(int a,int b){tot++;son[tot]=b;pre[tot]=last[a];last[a]=tot;}
+void dp(int x,int y)
+{
+	int m,i,head,tail,p;
+	for(m=0;y!=x;y=father[y]) a[++m]=f[y];
+	for(a[++m]=f[x],i=1;i<m;i++) a[m+i]=a[i];
+	head=tail=1,que[1]=1;p=(m>>1);
+	for(int i=2;i<=m+p;i++)
+	{
+		while(head<=tail && i-que[head]>p) head++;
+		ans=max(ans,a[que[head]]+a[i]+i-que[head]);
+		while(head<=tail && a[que[tail]]+i-que[head]<=a[i]) tail--;
+		que[++tail]=i;	
+	}	
+	for(i=1;i<m;i++) f[x]=max(f[x],a[i]+min(i,m-i)); 
+}
+void tarjan(int k)
+{
+	dfn[k]=low[k]=++NOW;
+	for(int x=last[k];x!=0;x=pre[x])
+	{
+		if(son[x]!=father[k])
+		{
+			if(!dfn[son[x]])
+			{
+				father[son[x]]=k;
+				tarjan(son[x]);
+				low[k]=min(low[k],low[son[x]]);
+				if(dfn[k]<low[son[x]])
+				{
+					ans=max(ans,f[k]+f[son[x]]+1);
+					f[k]=max(f[k],f[son[x]]+1);	
+				}
+			}	
+			else low[k]=min(low[k],dfn[son[x]]);
+		}	
+	}	
+	for(int x=last[k];x!=0;x=pre[x])
+	{
+		if(father[son[x]]!=k && dfn[k]<dfn[son[x]]) dp(k,son[x]);	
+	}
+}
+int main()
+{
+	int a,b,c,n,m;scanf("%d %d",&n,&m);
+	for(int i=1;i<=m;i++) 
+	{
+		scanf("%d %d",&c,&a);
+		for(int j=1;j<c;j++) scanf("%d",&b),add(a,b),add(b,a),a=b;
+	}
+	tarjan(1);
+	printf("%d\n",ans);
+	return 0;
+}
+    \end{lstlisting}
