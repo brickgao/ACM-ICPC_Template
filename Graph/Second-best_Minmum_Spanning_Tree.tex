@@ -1,5 +1,5 @@
 \subsection{次小生成树}
-每个节点i遍历整个最小生成树，定义F[j]为从i到j的路径上最大边的权值。
+每个节点i遍历整个最小生成树，定义F[j]为从i到j的路径上最大边的权值。\\
 遍历图求出F[j]的值，然后对于添加每条不在最小生成树中的边(i,j)，新的生成树权值之和就是MinST + w(i,j) - F[j]，记录其最小值，则为次小生成树。
     \begin{lstlisting}[language=c++]
 const int INF = 0x7FFFFFFF;
