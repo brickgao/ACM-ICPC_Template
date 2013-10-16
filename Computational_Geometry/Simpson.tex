@@ -1,0 +1,89 @@
+\subsection{Simpson圆并}
+    \begin{lstlisting}[language=c++]
+const double eps=1e-13;
+struct circle
+{
+	double lx,rx,r,r2,x,y;	
+}cir[1050],c[1050];
+int n,del[1050];
+pair<double,double>tmp[1099];
+double f(int l,int r,double k)
+{
+	double ans=0.0;int num=0,j;
+	for(int i=l;i<=r;i++)
+	{
+		if(k<cir[i].lx || k>cir[i].rx) continue;	
+		double len=sqrt(cir[i].r2-(cir[i].x-k)*(cir[i].x-k));
+		tmp[++num].first=cir[i].y-len;
+		tmp[num].second=cir[i].y+len;
+	}		
+	sort(tmp+1,tmp+1+num);
+	for(int i=1;i<=num;)
+	{
+		double s=tmp[i].first,e=tmp[i].second;
+		for(j=i+1;j<=num && e>=tmp[j].first;e=max(e,tmp[j].second),j++);	
+		j--;
+		ans+=e-s;i=j+1;
+	}
+	return ans;
+}
+double simpson(double fl,double fr,double fm,double l,double r)
+{
+    return (fm*4.0+fl+fr)*(r-l)/6.0;
+}
+double rsimpson(double l,double r,double mid,double fl,double fr,double fm,double s,int L,int R)
+{
+	double ml=(l+mid)/2.0,mr=(mid+r)/2.0,fml=f(L,R,ml),fmr=f(L,R,mr),s1=simpson(fl,fm,fml,l,mid),s2=simpson(fm,fr,fmr,mid,r);
+	if(fabs(s-s1-s2)<eps) 
+        return s1+s2;
+	return rsimpson(l,mid,ml,fl,fm,fml,s1,L,R)+rsimpson(mid,r,mr,fm,fr,fmr,s2,L,R);	
+}
+bool com1(const circle& a,const circle& b)
+{
+	return (a.lx==b.lx)?(a.rx<b.rx):(a.lx<b.lx);	
+}
+bool com2(const circle& a,const circle& b)
+{
+	return a.r>b.r;	
+}
+inline double cendist(const circle& a,const circle& b)
+{
+	return (a.x-b.x)*(a.x-b.x)+(a.y-b.y)*(a.y-b.y);	
+}
+int main()
+{
+	int k=0;double ans=0.00;scanf("%d",&n);
+	for(int i=1;i<=n;i++)
+	{
+		scanf("%lf %lf %lf",&c[i].x,&c[i].y,&c[i].r);
+		c[i].r2=c[i].r*c[i].r,c[i].lx=c[i].x-c[i].r,c[i].rx=c[i].x+c[i].r;	
+	}	
+	sort(c+1,c+1+n,com2);
+	for(int i=1;i<=n;i++)
+	{
+		if(del[i]) continue;
+		cir[++k]=c[i];
+		for(int j=i+1;j<=n;j++)
+		{
+			if(cendist(c[i],c[j])<=(c[i].r-c[j].r)*(c[i].r-c[j].r))	
+                del[j]=1;
+		}	
+	}
+	n=k;
+	sort(cir+1,cir+1+n,com1);
+	for(int i=1;i<=n;)
+	{
+		int j;
+        double l=cir[i].lx,r=cir[i].rx,mid,fl,fr,fm,ss;
+		for(j=i+1;j<=n && r>cir[j].lx;r=max(r,cir[j].rx),j++);
+		j--; 
+		mid=(l+r)/2.0;
+		fl=f(i,j,l);fr=f(i,j,r);fm=f(i,j,mid);
+		ss=simpson(fl,fr,fm,l,r);
+		ans+=rsimpson(l,r,mid,fl,fr,fm,ss,i,j);
+		i=j+1;	
+	}	
+	printf("%.3lf\n",ans);
+	return 0;
+}
+    \end{lstlisting}
