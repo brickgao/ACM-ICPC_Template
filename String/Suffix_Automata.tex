@@ -1,0 +1,58 @@
+\subsection{后缀自动机+拓扑}
+    \begin{lstlisting}[language=c++]
+struct node
+{
+	node *c[11],*pre;
+	int l,f,g;
+}mem[N*2],*root,*last,*cur=mem,*q[N*2];
+char str[N];
+int w[N];
+node *newnode()
+{
+	static int i;
+	for(++cur,i=0;i<11;i++)cur->c[i]=0;
+	cur->f=0;cur->l=0;cur->g=0;
+	return cur;
+}
+void ins(int c,int l)
+{
+	static node *np,*p,*q,*r;
+	np=newnode();np->l=l;
+	for(p=last;p&&!p->c[c];p=p->pre)p->c[c]=np;
+	last=np;
+	if(!p)np->pre=root;
+	else
+	{
+		if(p->c[c]->l==p->l+1)np->pre=p->c[c];
+		else
+		{
+			q=p->c[c];r=newnode();
+			*r=*q;
+			r->l=p->l+1;
+			q->pre=np->pre=r;
+			for(;p&&p->c[c]==q;p=p->pre)p->c[c]=r;
+		}
+	}
+}
+		for(i=1;i<=cur-mem;i++)
+			w[(mem+i)->l]++;
+		for(i=1;i<=l;i++)
+			w[i]+=w[i-1];
+		for(i=1;i<=cur-mem;i++)
+			q[w[(mem+i)->l]--]=mem+i;
+
+//匹配过程
+	int ans=0,l=0;
+	for(i=1;i<=n;i++)
+	{
+		c=str[i]-'a';
+		if(now->c[c])l++,now=now->c[c];
+		else
+		{
+			while(now&&!now->c[c])now=now->pre;
+			if(now)l=now->l+1,now=now->c[c];
+			else now=root,l=0;
+		}
+		ans=max(ans,l);
+	}
+    \end{lstlisting}
