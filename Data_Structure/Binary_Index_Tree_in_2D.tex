@@ -1,0 +1,71 @@
+\subsection{二维树状数组}
+    \begin{lstlisting}[language=c++]
+const int N = 2100, M = 2100;
+int n,m;
+struct BIT 
+{
+    int dt[N][M];
+    void modify (int x, int y, lint delt) 
+	{
+        for (int i = x; i <= n; i += i&(-i))
+            for (int j = y; j <= m; j += j & (-j))
+                dt[i][j] += delt;
+    }
+    lint sum (int x,int y) 
+	{
+        lint res = 0;
+        for (int i = x; i; i -= i & (-i))
+            for (int j = y; j; j -= j & (-j))
+                res += dt[i][j];
+        return res;
+    }
+}A,B,C,D;
+
+void modify (int x, int y, lint delt)
+{
+    A.modify(x, y, delt);
+    B.modify(x, y, x * delt);
+    C.modify(x, y, y * delt);
+    D.modify(x, y, x * y * delt);
+}
+lint sum (int x, int y) 
+{
+    return A.sum(x, y) * (x + 1) * (y + 1) - (y + 1) * B.sum(x, y) - (x + 1) * C.sum(x, y)+D.sum(x, y);
+}
+void modify (int x1, int y1, int x2, int y2, lint delt) 
+{
+    modify(x1, y1, delt); modify(x2 + 1, y2 + 1, delt);
+    modify(x2 + 1, y1, -delt); modify(x1, y2 + 1, -delt);
+}
+lint sum (int x1, int y1, int x2, int y2) 
+{
+    return sum(x2, y2) - sum(x2, y1 - 1) - sum(x1 - 1, y2) + sum(x1 - 1, y1 - 1);
+}
+int main ()
+{
+    char op;getchar();
+    scanf("%d %d", &n, &m);
+    while (1)
+    {
+        do op=getchar(); while (op!='L' && op!='k' && op!=-1);
+        if (op==-1) break;
+        if (op=='L')
+        {
+            int a,b,c,d,y;
+            scanf("%d %d %d %d %d\n",&a,&b,&c,&d,&y);
+            if(a>c) swap(a,c);
+            if(b>d) swap(b,d);
+            modify(a,b,c,d,y);
+        }
+        else
+        {
+            int a, b, c, d;
+            scanf("%d %d %d %d",&a,&b,&c,&d);
+            if (a>c) swap(a,c);
+            if (b>d) swap(b,d);
+            printf("%d\n", sum(a,b,c,d));
+        }
+    }
+    return 0;
+}
+    \end{lstlisting}
