@@ -1,0 +1,144 @@
+\subsection{Dancing Links}
+    \begin{lstlisting}[language=c++]
+const int R=81*9+3,C=324+3;
+bool graph[R][C];
+struct node
+{
+    int u,d,l,r;
+    int row,col;
+}edge[R*C+C];
+bool ans[R];
+int sum[C],col,st,pre,n,m,most;
+char str[200];
+void initclear(int x)
+{
+    int i;
+    for(i=0;i<=x;i++)
+    {
+        edge[i].col=i;
+        edge[i].u=i;
+        edge[i].d=i;
+        edge[i].l=i-1;
+        edge[i].r=i+1;
+        sum[i]=0;
+    }
+    edge[0].l=x;
+    edge[x].r=0;
+}
+void del(int x)
+{
+    int i,j;
+    edge[edge[x].l].r=edge[x].r;
+    edge[edge[x].r].l=edge[x].l;
+    for(i=edge[x].d;i!=x;i=edge[i].d)
+    {
+        for(j=edge[i].r;j!=i;j=edge[j].r)
+        {
+            sum[edge[j].col]--;
+            edge[edge[j].u].d=edge[j].d;
+            edge[edge[j].d].u=edge[j].u;
+        }
+    }
+}
+void res(int x)
+{
+    int i,j;
+    for(i=edge[x].u;i!=x;i=edge[i].u)
+    {
+        for(j=edge[i].l;j!=i;j=edge[j].l)
+        {
+            sum[edge[j].col]++;
+            edge[edge[j].u].d=j;
+            edge[edge[j].d].u=j;
+        }
+    }
+    edge[edge[x].l].r=x;
+    edge[edge[x].r].l=x;
+}
+bool dfs(int x)
+{
+    int i,j;
+    if(x>=most)return false;
+    if(edge[col].r==col)
+    {
+        if(x<most)most=x;
+        return true;
+    }
+    int t=col+1,c;
+    for(i=edge[col].r;i!=col;i=edge[i].r)
+    {
+        if(t>sum[i])
+        {
+            c=i;t=sum[i];
+            if(t==1)break;
+        }
+    }
+    del(c);
+    for(i=edge[c].d;i!=c;i=edge[i].d)
+    {
+        for(j=edge[i].r;j!=i;j=edge[j].r)del(edge[j].col);
+        ans[edge[j].row]=true;
+        if(dfs(x+1))return true;
+        ans[edge[j].row]=false;
+        for(j=edge[i].l;j!=i;j=edge[j].l)res(edge[j].col);
+    }
+    res(c);
+    return false;
+}
+inline void add(int x,int y,int c)
+{
+    int r=(x*9+y)*9+c;
+    graph[r][x*9+y]=true;
+    graph[r][81+9*x+c]=true;
+    graph[r][162+9*y+c]=true;
+    int x1=x/3,y1=y/3;
+    graph[r][243+(x1*3+y1)*9+c]=true;
+}
+int main()
+{
+    int i,j,k;
+    while(~scanf("%s",str))
+    {
+        memset(graph,false,sizeof(graph));
+        memset(sum,0,sizeof(sum));
+        memset(ans,false,sizeof(ans));
+        if(str[0]=='e')return 0;
+        for(i=0;i<9;i++)for(j=0;j<9;j++)
+        {
+            if(str[i*9+j]=='.')for(k=0;k<9;k++)add(i,j,k);
+            else add(i,j,str[i*9+j]-'1');
+        }
+        n=729;
+        m=324;
+        col=m;
+        int cur=col+1;
+        initclear(col);
+        for(i=0;i<n;i++)
+        {
+            st=pre=cur;
+            for(j=0;j<m;j++)
+            if(graph[i][j])
+            {
+                int pos=j;
+                edge[cur].u=edge[pos].u;
+                edge[edge[pos].u].d=cur;
+                edge[cur].d=pos;
+                edge[pos].u=cur;
+                sum[pos]++;
+                edge[cur].col=pos;
+                edge[cur].l=pre;
+                edge[pre].r=cur;
+                edge[cur].r=st;
+                edge[st].l=cur;
+                edge[cur].row=i;
+                pre=cur++;
+            }
+        }
+        most=n+1;
+        dfs(0);
+        for(i=0;i<81;i++)
+        for(j=0;j<9;j++)if(ans[i*9+j])printf("%d",j+1);
+        puts("");
+    }
+}
+    \end{lstlisting}
