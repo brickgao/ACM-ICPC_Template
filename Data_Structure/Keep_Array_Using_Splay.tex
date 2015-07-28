@@ -111,8 +111,8 @@ void recycle(node *t)
 }
 int main()
 {
-	int n,m,a,b,c;char op[100]; splay=new Splay; int t=0;  null->MAX=null->val=null->lmax=null->rmax=-914990825;
-	scanf("%d %d",&n,&m);  num[1]=-914990825;num[n+2]=-914990825;
+	int n,m,a,b,c;char op[100]; splay=new Splay; int t=0;  null->MAX=null->val=null->lmax=null->rmax=-999999999;
+	scanf("%d %d",&n,&m);  num[1]=-999999999;num[n+2]=-999999999;
 	for(int i=1;i<=n;i++) scanf("%d",&num[i+1]);
 	splay->root=splay->maketree(1,n+2,null);
 	for(int i=1;i<=m;i++)

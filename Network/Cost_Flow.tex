@@ -24,7 +24,7 @@ int main()
 {
 	while(spfa())
 	{
-		flow=914990825;
+		flow=999999999;
 		for(int now=t;now!=s;now=from[P[now]])
 			flow=min(flow,len[P[now]]);
 		for(int now=t;now!=s;now=from[P[now]])

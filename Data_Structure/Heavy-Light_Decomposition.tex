@@ -46,7 +46,7 @@ int findmax(int root,int a,int b)
 {
 	if(tree[root].l>=a && tree[root].r<=b)
 		return tree[root].MAX;
-	int mid=(tree[root].l+tree[root].r)>>1,MAX=-914990825;
+	int mid=(tree[root].l+tree[root].r)>>1,MAX=-999999999;
 	if(a<=mid) MAX=max(MAX,findmax(tree[root].lc,a,b));
 	if(b>mid) MAX=max(MAX,findmax(tree[root].rc,a,b));
 	return MAX;
@@ -98,7 +98,7 @@ void build(int k)
 }
 void find(int a,int b,int &MAX,int &sum)
 {
-	MAX=-914990825; sum=0;
+	MAX=-999999999; sum=0;
 	while(belong[a]!=belong[b])
 	{
 		if(dep[belong[a]]<dep[belong[b]])
